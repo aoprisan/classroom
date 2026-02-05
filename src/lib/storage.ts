@@ -4,7 +4,8 @@ import { STORAGE_KEY, STUDENT_META_KEY } from '../constants';
 export function saveState(state: ClassroomState): void {
   try {
     // Don't persist allRounds — they're recomputed from config
-    const { allRounds: _, ...rest } = state;
+    const { allRounds: _allRounds, ...rest } = state;
+    void _allRounds;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
   } catch {
     // localStorage might be full or unavailable

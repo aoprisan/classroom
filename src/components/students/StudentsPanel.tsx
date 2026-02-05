@@ -20,12 +20,13 @@ export function StudentsPanel({ totalStudents, metaMap, onUpdateStudent }: Stude
               <th className="py-2 px-2 text-left text-gray-500 font-medium w-12">#</th>
               <th className="py-2 px-2 text-left text-gray-500 font-medium">Last Name</th>
               <th className="py-2 px-2 text-left text-gray-500 font-medium">First Name</th>
+              <th className="py-2 px-2 text-left text-gray-500 font-medium w-20">Gender</th>
               <th className="py-2 px-2 text-left text-gray-500 font-medium w-28">Height (cm)</th>
             </tr>
           </thead>
           <tbody>
             {students.map((num) => {
-              const meta = metaMap[num] ?? { lastName: '', firstName: '', heightCm: null };
+              const meta = metaMap[num] ?? { lastName: '', firstName: '', heightCm: null, gender: '' as const };
               return (
                 <tr key={num} className="border-b border-gray-100">
                   <td className="py-1.5 px-2 text-gray-500 font-medium">{num}</td>
@@ -50,6 +51,19 @@ export function StudentsPanel({ totalStudents, metaMap, onUpdateStudent }: Stude
                       className="w-full px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
                       placeholder="First name"
                     />
+                  </td>
+                  <td className="py-1.5 px-2">
+                    <select
+                      value={meta.gender}
+                      onChange={(e) =>
+                        onUpdateStudent(num, { ...meta, gender: e.target.value as 'M' | 'F' | '' })
+                      }
+                      className="w-full px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    >
+                      <option value="">—</option>
+                      <option value="M">M</option>
+                      <option value="F">F</option>
+                    </select>
                   </td>
                   <td className="py-1.5 px-2">
                     <input

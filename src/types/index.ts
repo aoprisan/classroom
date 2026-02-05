@@ -16,6 +16,7 @@ export interface StudentMeta {
   lastName: string;
   firstName: string;
   heightCm: number | null;
+  gender: 'M' | 'F' | '';
 }
 
 export type StudentMetaMap = Record<number, StudentMeta>;

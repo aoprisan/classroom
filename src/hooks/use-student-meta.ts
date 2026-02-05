@@ -13,6 +13,13 @@ const FIRST_NAMES = [
   'Lisa', 'Gabin', 'Victoire', 'Malo',
 ];
 
+const FEMALE_NAMES = new Set([
+  'Emma', 'Léa', 'Chloé', 'Manon', 'Jade', 'Inès', 'Lina', 'Camille',
+  'Sarah', 'Alice', 'Louise', 'Anna', 'Zoé', 'Clara', 'Eva', 'Rose',
+  'Ambre', 'Lola', 'Juliette', 'Mila', 'Nina', 'Margot', 'Agathe', 'Lucie',
+  'Olivia', 'Iris', 'Charlotte', 'Pauline', 'Lisa', 'Victoire',
+]);
+
 const LAST_NAMES = [
   'Martin', 'Bernard', 'Dubois', 'Thomas', 'Robert', 'Richard', 'Petit', 'Durand',
   'Leroy', 'Moreau', 'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia', 'David',
@@ -28,7 +35,8 @@ function randomMeta(index: number): StudentMeta {
   const firstName = FIRST_NAMES[index % FIRST_NAMES.length];
   const lastName = LAST_NAMES[index % LAST_NAMES.length];
   const heightCm = Math.floor(Math.random() * 41) + 130; // 130–170 cm
-  return { lastName, firstName, heightCm };
+  const gender = FEMALE_NAMES.has(firstName) ? 'F' as const : 'M' as const;
+  return { lastName, firstName, heightCm, gender };
 }
 
 export function useStudentMeta(totalStudents: number) {
@@ -37,22 +45,22 @@ export function useStudentMeta(totalStudents: number) {
     const map: StudentMetaMap = {};
     for (let i = 1; i <= totalStudents; i++) {
       const s = saved?.[i];
-      const hasContent = s && (s.firstName || s.lastName || s.heightCm);
-      map[i] = hasContent ? s : randomMeta(i - 1);
+      const hasContent = s && (s.firstName || s.lastName || s.heightCm || s.gender);
+      map[i] = hasContent ? { ...s, gender: s.gender ?? '' } : randomMeta(i - 1);
     }
     return map;
   });
 
   // Sync with totalStudents changes: prune removed, fill new
-  useEffect(() => {
-    setMetaMap((prev) => {
-      const next: StudentMetaMap = {};
-      for (let i = 1; i <= totalStudents; i++) {
-        next[i] = prev[i] ?? randomMeta(i - 1);
-      }
-      return next;
-    });
-  }, [totalStudents]);
+  const [prevTotal, setPrevTotal] = useState(totalStudents);
+  if (prevTotal !== totalStudents) {
+    setPrevTotal(totalStudents);
+    const next: StudentMetaMap = {};
+    for (let i = 1; i <= totalStudents; i++) {
+      next[i] = metaMap[i] ?? randomMeta(i - 1);
+    }
+    setMetaMap(next);
+  }
 
   // Persist on change
   useEffect(() => {

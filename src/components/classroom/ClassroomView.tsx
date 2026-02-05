@@ -35,6 +35,9 @@ export function ClassroomView({
   const getHeight = studentMeta
     ? (num: number) => studentMeta[num]?.heightCm
     : undefined;
+  const getGender = studentMeta
+    ? (num: number) => studentMeta[num]?.gender || undefined
+    : undefined;
 
   // Sort pairs by height so shorter students sit closer to the teacher
   const sortedPairs =
@@ -96,7 +99,7 @@ export function ClassroomView({
             {rowPairs.map((row, i) => (
               <div key={i} className="flex-1">
                 <div className="text-xs text-gray-400 mb-2 text-center">Row {i + 1}</div>
-                <BenchRow pairs={row.pairs} aloneStudent={row.aloneStudent} getDisplayName={getDisplayName} getHeight={getHeight} />
+                <BenchRow pairs={row.pairs} aloneStudent={row.aloneStudent} getDisplayName={getDisplayName} getHeight={getHeight} getGender={getGender} />
               </div>
             ))}
           </div>
