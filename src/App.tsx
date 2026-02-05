@@ -3,6 +3,7 @@ import type { Tab } from './types';
 import { useClassroomState } from './hooks/use-classroom-state';
 import { usePairingStats } from './hooks/use-pairing-stats';
 import { useStudentMeta } from './hooks/use-student-meta';
+import { clearAll } from './lib/storage';
 import { Header } from './components/layout/Header';
 import { TabNav } from './components/layout/TabNav';
 import { ClassroomView } from './components/classroom/ClassroomView';
@@ -34,6 +35,7 @@ function App() {
         totalStudents={state.config.totalStudents}
         completedRounds={state.completedRoundIndices.length}
         totalRounds={state.allRounds.length}
+        onReset={() => { clearAll(); location.reload(); }}
       />
       <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
 

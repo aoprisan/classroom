@@ -38,6 +38,15 @@ export function saveStudentMeta(meta: StudentMetaMap): void {
   }
 }
 
+export function clearAll(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STUDENT_META_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export function loadStudentMeta(): StudentMetaMap | null {
   try {
     const raw = localStorage.getItem(STUDENT_META_KEY);
