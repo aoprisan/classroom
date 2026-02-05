@@ -43,6 +43,12 @@ Components are feature-grouped under `src/components/`:
 
 Config defaults/limits are in `src/constants.ts`: 4–60 students, 1–6 rows, 2 students per bench (fixed).
 
+### localStorage Keys
+
+Defined in `src/constants.ts`, used via `src/lib/storage.ts`:
+- `classroom-seating-state` — persisted classroom/config state (excludes computed `allRounds`)
+- `classroom-student-meta` — student names and heights
+
 ## Tech Stack
 
-React 19, TypeScript 5.9 (strict), Vite 7, Tailwind CSS 4, deployed on Vercel.
+React 19, TypeScript 5.9 (strict, `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`), Vite 7, Tailwind CSS 4 (Vite plugin, not PostCSS), deployed on Vercel.
