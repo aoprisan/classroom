@@ -5,16 +5,17 @@ interface BenchRowProps {
   pairs: Pair[];
   aloneStudent?: number;
   getDisplayName?: (num: number) => string | undefined;
+  getHeight?: (num: number) => number | null | undefined;
 }
 
-export function BenchRow({ pairs, aloneStudent, getDisplayName }: BenchRowProps) {
+export function BenchRow({ pairs, aloneStudent, getDisplayName, getHeight }: BenchRowProps) {
   return (
     <div className="flex flex-col items-center gap-3">
       {pairs.map((pair, i) => (
-        <Bench key={i} pair={pair} getDisplayName={getDisplayName} />
+        <Bench key={i} pair={pair} getDisplayName={getDisplayName} getHeight={getHeight} />
       ))}
       {aloneStudent !== undefined && (
-        <AloneBench student={aloneStudent} getDisplayName={getDisplayName} />
+        <AloneBench student={aloneStudent} getDisplayName={getDisplayName} getHeight={getHeight} />
       )}
     </div>
   );

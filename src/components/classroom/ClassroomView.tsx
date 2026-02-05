@@ -1,5 +1,5 @@
-import type { Round, LayoutConfig } from '../../types';
-import { distributeBenches } from '../../lib/seating';
+import type { Round, LayoutConfig, StudentMetaMap } from '../../types';
+import { distributeBenches, sortPairsByHeight } from '../../lib/seating';
 import { BenchRow } from './BenchRow';
 
 interface ClassroomViewProps {
@@ -14,6 +14,7 @@ interface ClassroomViewProps {
   onPrev: () => void;
   onNext: () => void;
   getDisplayName?: (num: number) => string | undefined;
+  studentMeta?: StudentMetaMap;
 }
 
 export function ClassroomView({
@@ -28,8 +29,18 @@ export function ClassroomView({
   onPrev,
   onNext,
   getDisplayName,
+  studentMeta,
 }: ClassroomViewProps) {
   const rows = distributeBenches(config);
+  const getHeight = studentMeta
+    ? (num: number) => studentMeta[num]?.heightCm
+    : undefined;
+
+  // Sort pairs by height so shorter students sit closer to the teacher
+  const sortedPairs =
+    round && studentMeta
+      ? sortPairsByHeight(round.pairs, studentMeta)
+      : round?.pairs ?? [];
 
   // Distribute pairs across rows
   const rowPairs: { pairs: [number, number][]; aloneStudent?: number }[] = [];
@@ -37,7 +48,7 @@ export function ClassroomView({
     let pairIdx = 0;
     for (let r = 0; r < rows.length; r++) {
       const count = rows[r];
-      const slice = round.pairs.slice(pairIdx, pairIdx + count);
+      const slice = sortedPairs.slice(pairIdx, pairIdx + count);
       // If this is the last row and there's an alone student, attach it
       const isLastRow = r === rows.length - 1;
       rowPairs.push({
@@ -85,7 +96,7 @@ export function ClassroomView({
             {rowPairs.map((row, i) => (
               <div key={i} className="flex-1">
                 <div className="text-xs text-gray-400 mb-2 text-center">Row {i + 1}</div>
-                <BenchRow pairs={row.pairs} aloneStudent={row.aloneStudent} getDisplayName={getDisplayName} />
+                <BenchRow pairs={row.pairs} aloneStudent={row.aloneStudent} getDisplayName={getDisplayName} getHeight={getHeight} />
               </div>
             ))}
           </div>

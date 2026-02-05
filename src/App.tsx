@@ -51,6 +51,7 @@ function App() {
             onPrev={viewPrev}
             onNext={viewNext}
             getDisplayName={getDisplayName}
+            studentMeta={metaMap}
           />
         )}
         {activeTab === 'students' && (
