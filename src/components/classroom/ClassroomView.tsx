@@ -127,7 +127,7 @@ export function ClassroomView({
       )}
 
       {/* Classroom */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+      <div data-print-classroom className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
         {/* Teacher's desk */}
         <div className="flex justify-center pb-4">
           <div className="bg-amber-900 text-amber-100 rounded-lg px-8 py-2 text-sm font-medium shadow">
@@ -163,8 +163,8 @@ export function ClassroomView({
         <SideView fov={fov} getDisplayName={getDisplayName} />
       )}
 
-      {/* Shuffle button */}
-      <div className="flex justify-center">
+      {/* Shuffle button + Print */}
+      <div className="flex justify-center gap-3">
         <button
           onClick={onShuffleNext}
           disabled={!canShuffleNext}
@@ -176,6 +176,14 @@ export function ClassroomView({
               ? 'Shuffle Next'
               : 'All Rounds Complete!'}
         </button>
+        {round && (
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-2.5 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 transition-colors shadow-sm print:hidden"
+          >
+            Print
+          </button>
+        )}
       </div>
     </div>
   );

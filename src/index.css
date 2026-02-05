@@ -8,3 +8,27 @@ body {
 .matrix-cell {
   @apply w-7 h-7 text-xs flex items-center justify-center border border-gray-200;
 }
+
+@media print {
+  /* Hide everything, then punch through ancestors of the classroom */
+  body * {
+    visibility: hidden !important;
+  }
+
+  [data-print-classroom],
+  [data-print-classroom] * {
+    visibility: visible !important;
+  }
+
+  [data-print-classroom] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0;
+    padding: 1rem;
+  }
+}
