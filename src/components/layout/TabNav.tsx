@@ -1,23 +1,14 @@
-import type { Tab } from '../../types';
-
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'classroom', label: 'Classroom' },
-  { id: 'students', label: 'Students' },
-  { id: 'history', label: 'History' },
-  { id: 'matrix', label: 'Matrix' },
-  { id: 'config', label: 'Config' },
-];
-
-interface TabNavProps {
-  activeTab: Tab;
-  onTabChange: (tab: Tab) => void;
+interface TabNavProps<T extends string> {
+  tabs: { id: T; label: string }[];
+  activeTab: T;
+  onTabChange: (tab: T) => void;
 }
 
-export function TabNav({ activeTab, onTabChange }: TabNavProps) {
+export function TabNav<T extends string>({ tabs, activeTab, onTabChange }: TabNavProps<T>) {
   return (
     <nav className="bg-white border-b border-gray-200">
       <div className="max-w-4xl mx-auto flex">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}

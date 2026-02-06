@@ -1,13 +1,17 @@
+import type { AppMode } from '../../types';
+
 interface HeaderProps {
+  mode: AppMode;
   totalStudents: number;
   completedRounds: number;
   totalRounds: number;
+  projectLabel?: string;
   onReset: () => void;
 }
 
-export function Header({ totalStudents, completedRounds, totalRounds, onReset }: HeaderProps) {
+export function Header({ mode, totalStudents, completedRounds, totalRounds, projectLabel, onReset }: HeaderProps) {
   function handleReset() {
-    if (window.confirm('Reset all data? This will clear all rounds, student names, and settings.')) {
+    if (window.confirm('Reset all data? This will clear all rounds, student names, settings, and projects.')) {
       onReset();
     }
   }
@@ -18,7 +22,13 @@ export function Header({ totalStudents, completedRounds, totalRounds, onReset }:
         <h1 className="text-lg font-bold text-gray-900">Classroom Shuffle</h1>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-500">
-            {totalStudents} students &middot; Round {completedRounds}/{totalRounds}
+            {mode === 'classroom' ? (
+              <>{totalStudents} students &middot; Round {completedRounds}/{totalRounds}</>
+            ) : projectLabel ? (
+              <>{projectLabel} &middot; Round {completedRounds}/{totalRounds}</>
+            ) : (
+              'No project selected'
+            )}
           </span>
           <button
             onClick={handleReset}

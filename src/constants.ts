@@ -16,3 +16,10 @@ export const CONFIG_LIMITS = {
 
 export const STORAGE_KEY = 'classroom-seating-state';
 export const STUDENT_META_KEY = 'classroom-student-meta';
+export const PROJECTS_STORAGE_KEY = 'classroom-projects-state';
+
+export const PROJECT_LIMITS = {
+  minTeamSize: 2,
+  maxTeamSize: 6,
+  maxProjects: 20,
+} as const;
