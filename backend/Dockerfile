@@ -8,7 +8,7 @@ ENV VITE_API_URL=/classroom/api
 RUN npm run build
 
 # Stage 2: Build Go binary
-FROM golang:1.23-bookworm AS backend
+FROM golang:1.25-bookworm AS backend
 WORKDIR /app
 
 # Copy Go module files first for caching
