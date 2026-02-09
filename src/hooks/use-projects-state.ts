@@ -1,7 +1,7 @@
-import { useReducer, useEffect, useCallback } from 'react';
+import { useReducer, useEffect, useCallback, useRef } from 'react';
 import type { ProjectsState, ProjectsAction, ProjectConfig } from '../types';
 import { generateTeamRounds } from '../lib/team-rounds';
-import { saveProjectsState, loadProjectsState } from '../lib/storage';
+import { useStorage } from './use-storage';
 
 function createProjectState(config: ProjectConfig) {
   return {
@@ -71,26 +71,32 @@ function reducer(state: ProjectsState, action: ProjectsAction): ProjectsState {
 
 export function useProjectsState() {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
+  const { adapter } = useStorage();
+  const hydrated = useRef(false);
 
-  // Hydrate from localStorage on mount
+  // Hydrate from storage on mount
   useEffect(() => {
-    const saved = loadProjectsState();
-    if (saved) {
-      const hydrated: ProjectsState = {
-        ...saved,
-        projects: saved.projects.map((p) => ({
-          ...p,
-          allRounds: generateTeamRounds(p.config.totalStudents, p.config.teamSize),
-        })),
-      };
-      dispatch({ type: 'HYDRATE', state: hydrated });
-    }
-  }, []);
+    adapter.loadProjectsState().then((saved) => {
+      if (saved) {
+        const hydratedState: ProjectsState = {
+          ...saved,
+          projects: saved.projects.map((p) => ({
+            ...p,
+            allRounds: generateTeamRounds(p.config.totalStudents, p.config.teamSize),
+          })),
+        };
+        dispatch({ type: 'HYDRATE', state: hydratedState });
+      }
+      hydrated.current = true;
+    });
+  }, [adapter]);
 
   // Persist on every change
   useEffect(() => {
-    saveProjectsState(state);
-  }, [state]);
+    if (hydrated.current) {
+      adapter.saveProjectsState(state);
+    }
+  }, [state, adapter]);
 
   const activeProject = state.projects.find(
     (p) => p.config.id === state.activeProjectId,

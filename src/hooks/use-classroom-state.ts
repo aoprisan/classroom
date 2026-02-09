@@ -1,8 +1,8 @@
-import { useReducer, useEffect, useCallback } from 'react';
+import { useReducer, useEffect, useCallback, useRef } from 'react';
 import type { ClassroomState, ClassroomAction, LayoutConfig } from '../types';
 import { DEFAULT_CONFIG } from '../constants';
 import { generateAllRounds } from '../lib/round-robin';
-import { saveState, loadState } from '../lib/storage';
+import { useStorage } from './use-storage';
 
 function createInitialState(config: LayoutConfig): ClassroomState {
   return {
@@ -41,20 +41,26 @@ function reducer(state: ClassroomState, action: ClassroomAction): ClassroomState
 
 export function useClassroomState() {
   const [state, dispatch] = useReducer(reducer, DEFAULT_CONFIG, createInitialState);
+  const { adapter } = useStorage();
+  const hydrated = useRef(false);
 
-  // Hydrate from localStorage on mount
+  // Hydrate from storage on mount
   useEffect(() => {
-    const saved = loadState();
-    if (saved) {
-      const allRounds = generateAllRounds(saved.config.totalStudents);
-      dispatch({ type: 'HYDRATE', state: { ...saved, allRounds } });
-    }
-  }, []);
+    adapter.loadClassroomState().then((saved) => {
+      if (saved) {
+        const allRounds = generateAllRounds(saved.config.totalStudents);
+        dispatch({ type: 'HYDRATE', state: { ...saved, allRounds } });
+      }
+      hydrated.current = true;
+    });
+  }, [adapter]);
 
   // Persist on every change (after hydration)
   useEffect(() => {
-    saveState(state);
-  }, [state]);
+    if (hydrated.current) {
+      adapter.saveClassroomState(state);
+    }
+  }, [state, adapter]);
 
   const shuffleNext = useCallback(() => dispatch({ type: 'SHUFFLE_NEXT' }), []);
   const viewRound = useCallback((index: number) => dispatch({ type: 'VIEW_ROUND', index }), []);

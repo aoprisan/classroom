@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { StudentMeta, StudentMetaMap } from '../types';
-import { saveStudentMeta, loadStudentMeta } from '../lib/storage';
+import { useStorage } from './use-storage';
 
 const FIRST_NAMES = [
   'Emma', 'Lucas', 'Léa', 'Hugo', 'Chloé', 'Louis', 'Manon', 'Nathan',
@@ -39,17 +39,35 @@ function randomMeta(index: number): StudentMeta {
   return { lastName, firstName, heightCm, gender };
 }
 
+function buildInitialMap(totalStudents: number, saved: StudentMetaMap | null): StudentMetaMap {
+  const map: StudentMetaMap = {};
+  for (let i = 1; i <= totalStudents; i++) {
+    const s = saved?.[i];
+    const hasContent = s && (s.firstName || s.lastName || s.heightCm || s.gender);
+    map[i] = hasContent ? { ...s, gender: s.gender ?? '' } : randomMeta(i - 1);
+  }
+  return map;
+}
+
 export function useStudentMeta(totalStudents: number) {
+  const { adapter } = useStorage();
+  const hydrated = useRef(false);
+
   const [metaMap, setMetaMap] = useState<StudentMetaMap>(() => {
-    const saved = loadStudentMeta();
-    const map: StudentMetaMap = {};
-    for (let i = 1; i <= totalStudents; i++) {
-      const s = saved?.[i];
-      const hasContent = s && (s.firstName || s.lastName || s.heightCm || s.gender);
-      map[i] = hasContent ? { ...s, gender: s.gender ?? '' } : randomMeta(i - 1);
-    }
-    return map;
+    // Start with random data; async hydration will overwrite if saved data exists
+    return buildInitialMap(totalStudents, null);
   });
+
+  // Hydrate from storage on mount
+  useEffect(() => {
+    adapter.loadStudentMeta().then((saved) => {
+      if (saved) {
+        setMetaMap(buildInitialMap(totalStudents, saved));
+      }
+      hydrated.current = true;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adapter]);
 
   // Sync with totalStudents changes: prune removed, fill new
   const [prevTotal, setPrevTotal] = useState(totalStudents);
@@ -64,8 +82,10 @@ export function useStudentMeta(totalStudents: number) {
 
   // Persist on change
   useEffect(() => {
-    saveStudentMeta(metaMap);
-  }, [metaMap]);
+    if (hydrated.current) {
+      adapter.saveStudentMeta(metaMap);
+    }
+  }, [metaMap, adapter]);
 
   const updateStudent = useCallback((num: number, meta: StudentMeta) => {
     setMetaMap((prev) => ({ ...prev, [num]: meta }));

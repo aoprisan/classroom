@@ -5,7 +5,8 @@ import { usePairingStats } from './hooks/use-pairing-stats';
 import { useStudentMeta } from './hooks/use-student-meta';
 import { useProjectsState } from './hooks/use-projects-state';
 import { useTeamStats } from './hooks/use-team-stats';
-import { clearAll } from './lib/storage';
+import { useStorage } from './hooks/use-storage';
+import { ClassroomSelector } from './components/classrooms/ClassroomSelector';
 import { Header } from './components/layout/Header';
 import { ModeSwitcher } from './components/layout/ModeSwitcher';
 import { TabNav } from './components/layout/TabNav';
@@ -38,6 +39,8 @@ function App() {
   const [mode, setMode] = useState<AppMode>('classroom');
   const [activeTab, setActiveTab] = useState<Tab>('classroom');
   const [activeProjectTab, setActiveProjectTab] = useState<ProjectTab>('projects');
+  const { adapter, classroomId, setClassroomId } = useStorage();
+  const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
 
   const {
     state,
@@ -62,6 +65,11 @@ function App() {
     ? `${projects.activeProject.config.courseName} — ${projects.activeProject.config.projectName}`
     : undefined;
 
+  // In API mode, show classroom selector if no classroom is selected
+  if (apiUrl && !classroomId) {
+    return <ClassroomSelector apiUrl={apiUrl} onSelect={setClassroomId} />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header
@@ -78,7 +86,7 @@ function App() {
             : projects.activeProject?.allRounds.length ?? 0
         }
         projectLabel={projectLabel}
-        onReset={() => { clearAll(); location.reload(); }}
+        onReset={() => { adapter.clearAll().then(() => location.reload()); }}
       />
       <ModeSwitcher mode={mode} onModeChange={setMode} />
 
