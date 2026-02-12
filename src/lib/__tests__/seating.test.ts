@@ -66,29 +66,29 @@ describe('sortPairsByHeight', () => {
 
 describe('distributeBenches', () => {
   it('distributes evenly when divisible', () => {
-    const config: LayoutConfig = { totalStudents: 12, rowCount: 3, studentsPerBench: 2 };
+    const config: LayoutConfig = { totalStudents: 12, rowCount: 3, studentsPerBench: 2, pairingMode: 'random' };
     expect(distributeBenches(config)).toEqual([2, 2, 2]);
   });
 
   it('distributes remainder to first rows', () => {
-    const config: LayoutConfig = { totalStudents: 10, rowCount: 3, studentsPerBench: 2 };
+    const config: LayoutConfig = { totalStudents: 10, rowCount: 3, studentsPerBench: 2, pairingMode: 'random' };
     // 5 benches / 3 rows = 1 base + 2 remainder
     expect(distributeBenches(config)).toEqual([2, 2, 1]);
   });
 
   it('handles single row', () => {
-    const config: LayoutConfig = { totalStudents: 8, rowCount: 1, studentsPerBench: 2 };
+    const config: LayoutConfig = { totalStudents: 8, rowCount: 1, studentsPerBench: 2, pairingMode: 'random' };
     expect(distributeBenches(config)).toEqual([4]);
   });
 
   it('handles odd student count (rounds up benches)', () => {
-    const config: LayoutConfig = { totalStudents: 7, rowCount: 2, studentsPerBench: 2 };
+    const config: LayoutConfig = { totalStudents: 7, rowCount: 2, studentsPerBench: 2, pairingMode: 'random' };
     // 4 benches / 2 rows
     expect(distributeBenches(config)).toEqual([2, 2]);
   });
 
   it('total benches sums correctly', () => {
-    const config: LayoutConfig = { totalStudents: 28, rowCount: 3, studentsPerBench: 2 };
+    const config: LayoutConfig = { totalStudents: 28, rowCount: 3, studentsPerBench: 2, pairingMode: 'random' };
     const rows = distributeBenches(config);
     const total = rows.reduce((s, r) => s + r, 0);
     expect(total).toBe(14); // ceil(28/2) = 14

@@ -130,7 +130,7 @@ function App() {
               <PairingMatrix stats={stats} totalStudents={state.config.totalStudents} getDisplayName={getDisplayName} />
             )}
             {activeTab === 'config' && (
-              <ConfigPanel currentConfig={state.config} onApply={updateConfig} />
+              <ConfigPanel currentConfig={state.config} onApply={updateConfig} metaMap={metaMap} />
             )}
           </main>
         </>

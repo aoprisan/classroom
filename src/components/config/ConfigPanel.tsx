@@ -1,14 +1,21 @@
 import { useState } from 'react';
-import type { LayoutConfig } from '../../types';
+import type { LayoutConfig, PairingMode, StudentMetaMap } from '../../types';
 import { CONFIG_LIMITS } from '../../constants';
 import { distributeBenches } from '../../lib/seating';
 
 interface ConfigPanelProps {
   currentConfig: LayoutConfig;
-  onApply: (config: LayoutConfig) => void;
+  onApply: (config: LayoutConfig, metaMap?: StudentMetaMap) => void;
+  metaMap: StudentMetaMap;
 }
 
-export function ConfigPanel({ currentConfig, onApply }: ConfigPanelProps) {
+const PAIRING_MODES: { value: PairingMode; label: string; description: string }[] = [
+  { value: 'random', label: 'Random', description: 'Pairs are assigned regardless of gender' },
+  { value: 'mixed', label: 'Mixed M/F', description: 'Each pair has one male and one female student' },
+  { value: 'same', label: 'Same gender', description: 'Each pair has students of the same gender' },
+];
+
+export function ConfigPanel({ currentConfig, onApply, metaMap }: ConfigPanelProps) {
   const [config, setConfig] = useState<LayoutConfig>({ ...currentConfig });
   const [showWarning, setShowWarning] = useState(false);
 
@@ -19,7 +26,17 @@ export function ConfigPanel({ currentConfig, onApply }: ConfigPanelProps) {
 
   const hasChanges =
     config.totalStudents !== currentConfig.totalStudents ||
-    config.rowCount !== currentConfig.rowCount;
+    config.rowCount !== currentConfig.rowCount ||
+    config.pairingMode !== currentConfig.pairingMode;
+
+  // Count genders for context info
+  const genderCounts = { M: 0, F: 0, unset: 0 };
+  for (let i = 1; i <= currentConfig.totalStudents; i++) {
+    const g = metaMap[i]?.gender;
+    if (g === 'M') genderCounts.M++;
+    else if (g === 'F') genderCounts.F++;
+    else genderCounts.unset++;
+  }
 
   function handleApply() {
     if (hasChanges) {
@@ -27,7 +44,7 @@ export function ConfigPanel({ currentConfig, onApply }: ConfigPanelProps) {
         setShowWarning(true);
         return;
       }
-      onApply(config);
+      onApply(config, metaMap);
       setShowWarning(false);
     }
   }
@@ -85,6 +102,44 @@ export function ConfigPanel({ currentConfig, onApply }: ConfigPanelProps) {
           <p className="text-xs text-gray-400 mt-1">
             {CONFIG_LIMITS.minRows}–{CONFIG_LIMITS.maxRows} rows
           </p>
+        </div>
+
+        {/* Pairing mode */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Pairing Mode
+          </label>
+          <div className="space-y-2">
+            {PAIRING_MODES.map((mode) => (
+              <label key={mode.value} className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="pairingMode"
+                  value={mode.value}
+                  checked={config.pairingMode === mode.value}
+                  onChange={() => {
+                    setConfig({ ...config, pairingMode: mode.value });
+                    setShowWarning(false);
+                  }}
+                  className="mt-0.5"
+                />
+                <div>
+                  <span className="text-sm font-medium text-gray-700">{mode.label}</span>
+                  <p className="text-xs text-gray-400">{mode.description}</p>
+                </div>
+              </label>
+            ))}
+          </div>
+          {config.pairingMode !== 'random' && (
+            <p className="text-xs text-gray-500 mt-2">
+              Gender data: {genderCounts.M} M, {genderCounts.F} F{genderCounts.unset > 0 && `, ${genderCounts.unset} unset`}
+            </p>
+          )}
+          {config.pairingMode !== 'random' && genderCounts.M === 0 && genderCounts.F === 0 && (
+            <p className="text-xs text-yellow-600 mt-1">
+              No genders set — will fall back to random pairing. Set genders in the Students tab.
+            </p>
+          )}
         </div>
 
         {/* Preview */}

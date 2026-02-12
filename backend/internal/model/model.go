@@ -19,6 +19,7 @@ type Classroom struct {
 	TotalStudents         int       `json:"totalStudents"`
 	RowCount              int       `json:"rowCount"`
 	StudentsPerBench      int       `json:"studentsPerBench"`
+	PairingMode           string    `json:"pairingMode"`
 	CompletedRoundIndices []int     `json:"completedRoundIndices"`
 	CurrentViewIndex      int       `json:"currentViewIndex"`
 	CreatedAt             time.Time `json:"createdAt"`
@@ -55,6 +56,7 @@ type CreateClassroomRequest struct {
 	TotalStudents    int    `json:"totalStudents"`
 	RowCount         int    `json:"rowCount"`
 	StudentsPerBench int    `json:"studentsPerBench"`
+	PairingMode      string `json:"pairingMode"`
 }
 
 type UpdateClassroomRequest struct {
@@ -62,6 +64,7 @@ type UpdateClassroomRequest struct {
 	TotalStudents    *int    `json:"totalStudents,omitempty"`
 	RowCount         *int    `json:"rowCount,omitempty"`
 	StudentsPerBench *int    `json:"studentsPerBench,omitempty"`
+	PairingMode      *string `json:"pairingMode,omitempty"`
 }
 
 type UpdateStudentRequest struct {
@@ -93,11 +96,12 @@ type ImportRequest struct {
 }
 
 type ImportClassroomConfig struct {
-	TotalStudents         int   `json:"totalStudents"`
-	RowCount              int   `json:"rowCount"`
-	StudentsPerBench      int   `json:"studentsPerBench"`
-	CompletedRoundIndices []int `json:"completedRoundIndices"`
-	CurrentViewIndex      int   `json:"currentViewIndex"`
+	TotalStudents         int    `json:"totalStudents"`
+	RowCount              int    `json:"rowCount"`
+	StudentsPerBench      int    `json:"studentsPerBench"`
+	PairingMode           string `json:"pairingMode"`
+	CompletedRoundIndices []int  `json:"completedRoundIndices"`
+	CurrentViewIndex      int    `json:"currentViewIndex"`
 }
 
 type ImportStudent struct {

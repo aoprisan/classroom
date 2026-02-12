@@ -27,11 +27,16 @@ func (h *SyncHandler) Import(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create classroom from imported config
+	pairingMode := req.Config.PairingMode
+	if pairingMode == "" {
+		pairingMode = "random"
+	}
 	classroom, err := h.store.CreateClassroom(userID, model.CreateClassroomRequest{
 		Name:             "Imported Classroom",
 		TotalStudents:    req.Config.TotalStudents,
 		RowCount:         req.Config.RowCount,
 		StudentsPerBench: req.Config.StudentsPerBench,
+		PairingMode:      pairingMode,
 	})
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to create classroom")

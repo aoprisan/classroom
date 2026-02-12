@@ -4,6 +4,7 @@ export const DEFAULT_CONFIG: LayoutConfig = {
   totalStudents: 28,
   rowCount: 3,
   studentsPerBench: 2,
+  pairingMode: 'random',
 };
 
 export const CONFIG_LIMITS = {

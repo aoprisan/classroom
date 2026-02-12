@@ -10,12 +10,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run lint` — ESLint (flat config, TypeScript + React Hooks rules)
 - `npm run preview` — Preview production build locally
 
+- `npm test` — Run vitest tests once
+- `npm run test:watch` — Run vitest in watch mode
+
+Tests live in `src/lib/__tests__/` and cover core algorithms (round-robin, seating, pairing matrix, team coverage, field of view) and storage adapters.
+
 ### Backend
 - `cd backend && go build ./cmd/server` — Build Go server binary
 - `cd backend && go vet ./...` — Run Go vet
 - `cd backend && go build ./...` — Build all Go packages
-
-No test framework is configured.
 
 ## Architecture
 
@@ -78,7 +81,7 @@ Defined in `src/constants.ts`, used via storage adapters:
 
 ## Backend (Go)
 
-Located in `backend/`. Go 1.22+ with `net/http` routing (no framework).
+Located in `backend/`. Go 1.25+ with `net/http` routing (no framework).
 
 ### Structure
 - `cmd/server/main.go` — Entry point, embeds frontend `dist/`
@@ -116,4 +119,4 @@ Build: `VITE_API_URL=https://api.example.com VITE_BASE_PATH=/ npm run build && c
 
 ## Tech Stack
 
-React 19, TypeScript 5.9 (strict, `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`, `erasableSyntaxOnly`), Vite 7, Tailwind CSS 4 (Vite plugin, not PostCSS). Go 1.22+, SQLite (WAL mode), `go-sqlite3`, `golang-jwt/jwt/v5`.
+React 19, TypeScript 5.9 (strict, `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`, `erasableSyntaxOnly`), Vite 7, Vitest 4, Tailwind CSS 4 (Vite plugin, not PostCSS). Go 1.25+, SQLite (WAL mode), `go-sqlite3`, `golang-jwt/jwt/v5`.

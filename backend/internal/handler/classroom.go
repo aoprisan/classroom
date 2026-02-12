@@ -48,6 +48,13 @@ func (h *ClassroomHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if req.StudentsPerBench == 0 {
 		req.StudentsPerBench = 2
 	}
+	if req.PairingMode == "" {
+		req.PairingMode = "random"
+	}
+	if req.PairingMode != "random" && req.PairingMode != "mixed" && req.PairingMode != "same" {
+		writeError(w, http.StatusBadRequest, "pairingMode must be random, mixed, or same")
+		return
+	}
 
 	classroom, err := h.store.CreateClassroom(userID, req)
 	if err != nil {
@@ -80,6 +87,11 @@ func (h *ClassroomHandler) Update(w http.ResponseWriter, r *http.Request) {
 	var req model.UpdateClassroomRequest
 	if err := readJSON(r, &req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	if req.PairingMode != nil && *req.PairingMode != "random" && *req.PairingMode != "mixed" && *req.PairingMode != "same" {
+		writeError(w, http.StatusBadRequest, "pairingMode must be random, mixed, or same")
 		return
 	}
 

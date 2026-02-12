@@ -25,7 +25,7 @@ describe('LocalStorageAdapter', () => {
 
   describe('classroom state', () => {
     const state: ClassroomState = {
-      config: { totalStudents: 28, rowCount: 3, studentsPerBench: 2 },
+      config: { totalStudents: 28, rowCount: 3, studentsPerBench: 2, pairingMode: 'random' as const },
       allRounds: [{ index: 0, pairs: [[1, 2], [3, 4]] }],
       completedRoundIndices: [0],
       currentViewIndex: 0,
@@ -114,7 +114,7 @@ describe('LocalStorageAdapter', () => {
   describe('clearAll', () => {
     it('clears all storage keys', async () => {
       const classroomState: ClassroomState = {
-        config: { totalStudents: 4, rowCount: 1, studentsPerBench: 2 },
+        config: { totalStudents: 4, rowCount: 1, studentsPerBench: 2, pairingMode: 'random' as const },
         allRounds: [],
         completedRoundIndices: [],
         currentViewIndex: -1,

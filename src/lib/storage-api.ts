@@ -1,6 +1,11 @@
-import type { ClassroomState, StudentMetaMap, ProjectsState } from '../types';
+import type { ClassroomState, StudentMetaMap, ProjectsState, PairingMode } from '../types';
 import type { StorageAdapter, PersistedClassroomState, PersistedProjectsState } from './storage-adapter';
 import type { ApiClient } from './api-client';
+
+const VALID_PAIRING_MODES = new Set(['random', 'mixed', 'same']);
+function validatePairingMode(m?: string): PairingMode {
+  return VALID_PAIRING_MODES.has(m ?? '') ? m as PairingMode : 'random';
+}
 
 const VALID_GENDERS = new Set(['M', 'F', '']);
 function validateGender(g: string): 'M' | 'F' | '' {
@@ -14,6 +19,7 @@ interface ApiClassroom {
   totalStudents: number;
   rowCount: number;
   studentsPerBench: number;
+  pairingMode?: string;
   completedRoundIndices: number[];
   currentViewIndex: number;
 }
@@ -64,6 +70,7 @@ export class ApiStorageAdapter implements StorageAdapter {
           totalStudents: classroom.totalStudents,
           rowCount: classroom.rowCount,
           studentsPerBench: classroom.studentsPerBench,
+          pairingMode: validatePairingMode(classroom.pairingMode),
         },
         completedRoundIndices: classroom.completedRoundIndices,
         currentViewIndex: classroom.currentViewIndex,
@@ -166,6 +173,7 @@ export class ApiStorageAdapter implements StorageAdapter {
           totalStudents: classroomState.config.totalStudents,
           rowCount: classroomState.config.rowCount,
           studentsPerBench: classroomState.config.studentsPerBench,
+          pairingMode: classroomState.config.pairingMode,
         });
       }
 

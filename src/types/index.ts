@@ -1,3 +1,5 @@
+export type PairingMode = 'random' | 'mixed' | 'same';
+
 export type Pair = [number, number];
 
 export interface Round {
@@ -10,6 +12,7 @@ export interface LayoutConfig {
   totalStudents: number;
   rowCount: number;
   studentsPerBench: number;
+  pairingMode: PairingMode;
 }
 
 export interface StudentMeta {
@@ -36,7 +39,7 @@ export interface ClassroomState {
 export type ClassroomAction =
   | { type: 'SHUFFLE_NEXT' }
   | { type: 'VIEW_ROUND'; index: number }
-  | { type: 'UPDATE_CONFIG'; config: LayoutConfig }
+  | { type: 'UPDATE_CONFIG'; config: LayoutConfig; genderMap?: StudentMetaMap }
   | { type: 'RESET_ALL' }
   | { type: 'HYDRATE'; state: ClassroomState };
 

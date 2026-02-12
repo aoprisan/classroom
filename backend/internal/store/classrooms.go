@@ -19,10 +19,15 @@ func (s *Store) CreateClassroom(userID string, req model.CreateClassroomRequest)
 		name = "My Classroom"
 	}
 
+	pairingMode := req.PairingMode
+	if pairingMode == "" {
+		pairingMode = "random"
+	}
+
 	_, err := s.db.Exec(`
-		INSERT INTO classrooms (id, user_id, name, total_students, row_count, students_per_bench, completed_round_indices, current_view_index, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, id, userID, name, req.TotalStudents, req.RowCount, req.StudentsPerBench, string(indices), -1, now, now)
+		INSERT INTO classrooms (id, user_id, name, total_students, row_count, students_per_bench, pairing_mode, completed_round_indices, current_view_index, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`, id, userID, name, req.TotalStudents, req.RowCount, req.StudentsPerBench, pairingMode, string(indices), -1, now, now)
 	if err != nil {
 		return nil, fmt.Errorf("create classroom: %w", err)
 	}
@@ -32,7 +37,7 @@ func (s *Store) CreateClassroom(userID string, req model.CreateClassroomRequest)
 
 func (s *Store) ListClassrooms(userID string) ([]model.Classroom, error) {
 	rows, err := s.db.Query(`
-		SELECT id, user_id, name, total_students, row_count, students_per_bench, completed_round_indices, current_view_index, created_at, updated_at
+		SELECT id, user_id, name, total_students, row_count, students_per_bench, pairing_mode, completed_round_indices, current_view_index, created_at, updated_at
 		FROM classrooms WHERE user_id = ? ORDER BY created_at DESC
 	`, userID)
 	if err != nil {
@@ -53,7 +58,7 @@ func (s *Store) ListClassrooms(userID string) ([]model.Classroom, error) {
 
 func (s *Store) GetClassroom(id, userID string) (*model.Classroom, error) {
 	row := s.db.QueryRow(`
-		SELECT id, user_id, name, total_students, row_count, students_per_bench, completed_round_indices, current_view_index, created_at, updated_at
+		SELECT id, user_id, name, total_students, row_count, students_per_bench, pairing_mode, completed_round_indices, current_view_index, created_at, updated_at
 		FROM classrooms WHERE id = ? AND user_id = ?
 	`, id, userID)
 	return scanClassroomRow(row)
@@ -80,16 +85,19 @@ func (s *Store) UpdateClassroom(id, userID string, req model.UpdateClassroomRequ
 	if req.StudentsPerBench != nil {
 		c.StudentsPerBench = *req.StudentsPerBench
 	}
+	if req.PairingMode != nil {
+		c.PairingMode = *req.PairingMode
+	}
 
 	// Reset progress when config changes
 	indices, _ := json.Marshal([]int{})
 	now := time.Now().UTC().Format(time.DateTime)
 
 	_, err = s.db.Exec(`
-		UPDATE classrooms SET name = ?, total_students = ?, row_count = ?, students_per_bench = ?,
+		UPDATE classrooms SET name = ?, total_students = ?, row_count = ?, students_per_bench = ?, pairing_mode = ?,
 		completed_round_indices = ?, current_view_index = ?, updated_at = ?
 		WHERE id = ? AND user_id = ?
-	`, c.Name, c.TotalStudents, c.RowCount, c.StudentsPerBench, string(indices), -1, now, id, userID)
+	`, c.Name, c.TotalStudents, c.RowCount, c.StudentsPerBench, c.PairingMode, string(indices), -1, now, id, userID)
 	if err != nil {
 		return nil, fmt.Errorf("update classroom: %w", err)
 	}
@@ -161,7 +169,7 @@ func scanClassroomFromScanner(s scanner) (*model.Classroom, error) {
 	var indicesJSON, createdAt, updatedAt string
 
 	err := s.Scan(&c.ID, &c.UserID, &c.Name, &c.TotalStudents, &c.RowCount, &c.StudentsPerBench,
-		&indicesJSON, &c.CurrentViewIndex, &createdAt, &updatedAt)
+		&c.PairingMode, &indicesJSON, &c.CurrentViewIndex, &createdAt, &updatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
